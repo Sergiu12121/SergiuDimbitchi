@@ -5,4 +5,4 @@ class Student:
         self.email = email
         self.enrollment_date = enrollment_date
         self.date_of_birth = date_of_birth
-        self.gratuated = False
+        
