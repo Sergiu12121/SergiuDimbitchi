@@ -9,8 +9,10 @@ class File:
         self.extension = os.path.splitext(self.filename)[1]
         self.created_time = os.path.getctime(path)
         self.last_modified_time = os.path.getmtime(path)
+
     def has_changed(self, snapshot_time):
         return self.last_modified_time > snapshot_time
+
 
 class FolderMonitor:
     def __init__(self, folder_path):
@@ -29,6 +31,11 @@ class FolderMonitor:
     def commit(self):
         self.snapshot_time = time.time()
 
+    def status(self):
+        for filename, file in self.files.items():
+            status = "Changed" if file.has_changed(self.snapshot_time) else "No Change"
+            print(f"{filename} - {status}")
+
 
 if __name__ == "__main__":
     folder_path = "/Users/sergiu_sd/Desktop/test_folder"
@@ -39,12 +46,14 @@ if __name__ == "__main__":
         command = input("> ")
         if command == "help":
             print("'commit' - Update the snapshot time")
+            print("'status' - Display the change status of each file.")
             print("'exit' - Exit")
-
         elif command == "commit":
             monitor.commit()
             print("Snapshot updated.")
+        elif command == "status":
+            monitor.status()
         elif command == "exit":
             break
         else:
-            print("Unknown command! 'help' for all the commands > ")
+            print("Unknown command! Type 'help' for all the commands.")
