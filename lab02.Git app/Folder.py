@@ -1,39 +1,10 @@
 import os
-import re
 from datetime import datetime
-from PIL import Image
 
 from File import File
 from TextFile import TextFile
 from ImageFile import ImageFile
 from ProgramFile import ProgramFile
-
-
-class TextFile(File):
-    def detailed_info(self):
-        with open(self.path, "r") as f:
-            content = f.read()
-            print(f"Line Count: {len(content.splitlines())}")
-            print(f"Word Count: {len(content.split())}")
-            print(f"Character Count: {len(content)}")
-
-
-class ImageFile(File):
-    def detailed_info(self):
-        with Image.open(self.path) as img:
-            width, height = img.size
-            print(f"Image Size: {width}x{height}")
-
-
-class ProgramFile(File):
-    def detailed_info(self):
-        with open(self.path, "r") as f:
-            content = f.read()
-            class_count = len(re.findall(r"\bclass\b", content))
-            method_count = len(re.findall(r"\bdef\b", content))
-            print(f"Line Count: {len(content.splitlines())}")
-            print(f"Class Count: {class_count}")
-            print(f"Method Count: {method_count}")
 
 
 class Folder:
@@ -95,35 +66,3 @@ class Folder:
                 print(f"{filename} : Changed")
             else:
                 print(f"{filename} : No Change")
-
-
-def main():
-    monitor = Folder("/Users/sergiu_sd/Desktop/test_folder")
-    monitor.display_help()
-    while True:
-        command = input("Enter command: ").split()
-        if not command:
-            continue
-
-        if command[0] == "commit":
-            monitor.commit()
-        elif command[0] == "file":
-            monitor.list_files()
-        elif command[0] == "info":
-            if len(command) < 2:
-                print("Please provide a filename for the info command.")
-                monitor.list_files()
-            else:
-                monitor.info(command[1])
-        elif command[0] == "status":
-            monitor.status()
-        elif command[0] == "exit":
-            break
-
-        else:
-            print("Wrong command!")
-            monitor.display_help()
-
-
-if __name__ == "__main__":
-    main()
