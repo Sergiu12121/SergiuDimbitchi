@@ -37,6 +37,7 @@ class Folder:
         for filename in os.listdir(self.folder_path):
             file_path = os.path.join(self.folder_path, filename)
             self.file_snapshots[filename] = os.path.getmtime(file_path)
+        print("Snapshot time updated")
 
     def list_files(self):
         print("Available files:")
@@ -59,10 +60,26 @@ class Folder:
             return
 
         print(f"Created Snapshot at: {self.snapshot_time.strftime('%H:%M , %d.%m.%Y')}")
+
+        current_files = set(os.listdir(self.folder_path))
+        snapshot_files = set(self.file_snapshots.keys())
+
+        added_files = current_files - snapshot_files
+        deleted_files = snapshot_files - current_files
+
+        if added_files:
+            for file in added_files:
+                print(f"{file} : New file")
+
+        if deleted_files:
+            for file in deleted_files:
+                print(f"{file} : Deleted file")
+
         for filename, last_modified in self.file_snapshots.items():
-            file_path = os.path.join(self.folder_path, filename)
-            current_modified = os.path.getmtime(file_path)
-            if current_modified > last_modified:
-                print(f"{filename} : Changed")
-            else:
-                print(f"{filename} : No Change")
+            if filename not in deleted_files:  # Only check files that exist
+                file_path = os.path.join(self.folder_path, filename)
+                current_modified = os.path.getmtime(file_path)
+                if current_modified > last_modified:
+                    print(f"{filename} : Changed")
+                else:
+                    print(f"{filename} : No Change")
