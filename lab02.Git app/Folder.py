@@ -66,6 +66,11 @@ class Folder:
         print(f"Created Snapshot at: {self.snapshot_time.strftime('%H:%M , %d.%m.%Y')}")
         for filename, last_modified in self.file_snapshots.items():
             file_path = os.path.join(self.folder_path, filename)
+            if not os.path.exists(file_path):
+                if filename != ".DS_Store":
+                    print(f"{filename} : Deleted file")
+                continue
+
             current_modified = os.path.getmtime(file_path)
             if filename != ".DS_Store":
                 if current_modified > last_modified:
@@ -77,17 +82,11 @@ class Folder:
         snapshot_files = set(self.file_snapshots.keys())
 
         added_files = current_files - snapshot_files
-        deleted_files = snapshot_files - current_files
 
         if added_files:
             for file in added_files:
                 if file != ".DS_Store":
                     print(f"{file} : New file")
-
-        if deleted_files:
-            for file in deleted_files:
-                if file != ".DS_Store":
-                    print(f"{file} : Deleted file")
 
     def detect_changes(self):
         while True:

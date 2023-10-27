@@ -21,7 +21,7 @@ class Main:
 
         self.display_help()
         while True:
-            command = input("Enter command: ").split()
+            command = input(" > ").split()
             if not command:
                 continue
             if command[0] == "commit":
