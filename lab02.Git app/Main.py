@@ -1,3 +1,4 @@
+import threading
 from Folder import Folder
 
 
@@ -11,17 +12,21 @@ class Main:
         print("  info <filename> - Display information about a specific file.")
         print("  status - Show the status of files since the last snapshot.")
         print("  exit - Exit the program.")
-        print("  help - Display this help message.")
 
     def start(self):
+        self.monitor.commit()
+        detection_thread = threading.Thread(target=self.monitor.detect_changes)
+        detection_thread.daemon = True
+        detection_thread.start()
+
         self.display_help()
         while True:
             command = input("Enter command: ").split()
             if not command:
                 continue
-
             if command[0] == "commit":
                 self.monitor.commit()
+                print("Snapshot time updated")
             elif command[0] == "info":
                 if len(command) < 2:
                     print("Please provide a filename for the info command.")

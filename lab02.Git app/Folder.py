@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+import threading
+import time
 
 from File import File
 from TextFile import TextFile
@@ -12,6 +14,7 @@ class Folder:
         self.folder_path = folder_path
         self.snapshot_time = None
         self.file_snapshots = {}
+        self.reported_changes = set()
 
     def get_file_instance(self, file_path):
         extension = os.path.splitext(file_path)[1].lower()
@@ -37,12 +40,13 @@ class Folder:
         for filename in os.listdir(self.folder_path):
             file_path = os.path.join(self.folder_path, filename)
             self.file_snapshots[filename] = os.path.getmtime(file_path)
-        print("Snapshot time updated")
+        self.reported_changes.clear()
 
     def list_files(self):
         print("Available files:")
         for filename in os.listdir(self.folder_path):
-            print(filename)
+            if filename != ".DS_Store":
+                print(filename)
 
     def info(self, filename):
         file_path = os.path.join(self.folder_path, filename)
@@ -60,6 +64,14 @@ class Folder:
             return
 
         print(f"Created Snapshot at: {self.snapshot_time.strftime('%H:%M , %d.%m.%Y')}")
+        for filename, last_modified in self.file_snapshots.items():
+            file_path = os.path.join(self.folder_path, filename)
+            current_modified = os.path.getmtime(file_path)
+            if filename != ".DS_Store":
+                if current_modified > last_modified:
+                    print(f"{filename} : Changed")
+                else:
+                    print(f"{filename} : No Change")
 
         current_files = set(os.listdir(self.folder_path))
         snapshot_files = set(self.file_snapshots.keys())
@@ -69,17 +81,42 @@ class Folder:
 
         if added_files:
             for file in added_files:
-                print(f"{file} : New file")
+                if file != ".DS_Store":
+                    print(f"{file} : New file")
 
         if deleted_files:
             for file in deleted_files:
-                print(f"{file} : Deleted file")
+                if file != ".DS_Store":
+                    print(f"{file} : Deleted file")
 
-        for filename, last_modified in self.file_snapshots.items():
-            if filename not in deleted_files:  # Only check files that exist
-                file_path = os.path.join(self.folder_path, filename)
-                current_modified = os.path.getmtime(file_path)
-                if current_modified > last_modified:
-                    print(f"{filename} : Changed")
-                else:
-                    print(f"{filename} : No Change")
+    def detect_changes(self):
+        while True:
+            current_files = set(os.listdir(self.folder_path))
+            snapshot_files = set(self.file_snapshots.keys())
+
+            added_files = current_files - snapshot_files
+            deleted_files = snapshot_files - current_files
+
+            for file in added_files:
+                if file != ".DS_Store" and file not in self.reported_changes:
+                    print(f"{file} : New file added")
+                    self.reported_changes.add(file)
+
+            for file in deleted_files:
+                if file != ".DS_Store" and file not in self.reported_changes:
+                    print(f"{file} : File deleted")
+                    self.reported_changes.add(file)
+
+            for filename, last_modified in self.file_snapshots.items():
+                if filename in current_files:
+                    file_path = os.path.join(self.folder_path, filename)
+                    current_modified = os.path.getmtime(file_path)
+                    if (
+                        current_modified > last_modified
+                        and filename not in self.reported_changes
+                    ):
+                        if filename != ".DS_Store":
+                            print(f"{filename} : Changed")
+                            self.reported_changes.add(filename)
+
+            time.sleep(5)
