@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-import threading
 import time
 
 from File import File
@@ -37,9 +36,18 @@ class Folder:
 
     def commit(self):
         self.snapshot_time = datetime.now()
-        for filename in os.listdir(self.folder_path):
-            file_path = os.path.join(self.folder_path, filename)
-            self.file_snapshots[filename] = os.path.getmtime(file_path)
+        current_files = os.listdir(self.folder_path)
+
+        for filename in current_files:
+            if filename != ".DS_Store":
+                file_path = os.path.join(self.folder_path, filename)
+                self.file_snapshots[filename] = os.path.getmtime(file_path)
+
+        snapshot_files = set(self.file_snapshots.keys())
+        for filename in snapshot_files:
+            if filename not in current_files:
+                del self.file_snapshots[filename]
+
         self.reported_changes.clear()
 
     def list_files(self):
