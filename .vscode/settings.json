@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./lab03. Stack and Queue /Stack"
+    ]
+}

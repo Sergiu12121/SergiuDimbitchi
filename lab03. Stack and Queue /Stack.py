@@ -1,12 +1,23 @@
-class Stack:
+from abc import ABC, abstractmethod
+
+
+class Stack(ABC):
+    @abstractmethod
     def push(self, item):
-        raise NotImplementedError("This method should be implemented by subclasses")
+        pass
 
+    @abstractmethod
     def pop(self):
-        raise NotImplementedError("This method should be implemented by subclasses")
+        pass
 
-    def peek(self):
-        raise NotImplementedError("This method should be implemented by subclasses")
+    @abstractmethod
+    def isEmpty(self):
+        pass
 
-    def is_empty(self):
-        raise NotImplementedError("This method should be implemented by subclasses")
+    @abstractmethod
+    def isFull(self):
+        pass
+
+    @abstractmethod
+    def top(self):
+        pass

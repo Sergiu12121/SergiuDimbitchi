@@ -1,9 +1,10 @@
+from collections import deque
 from Stack import Stack
 
 
-class ArrayStack(Stack):
+class DequeStack(Stack):
     def __init__(self, capacity):
-        self.items = []
+        self.items = deque()
         self.capacity = capacity
 
     def push(self, item):
